@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+    <bean id="dao" class="com.example.dao.DaoImpl"/>
+    <bean id="metierImpl" class="com.example.metier.MetierImpl">
+        <constructor-arg ref="dao"/>
+    </bean>
+</beans>
