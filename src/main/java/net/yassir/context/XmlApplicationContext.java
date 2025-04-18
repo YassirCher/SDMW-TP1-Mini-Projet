@@ -7,6 +7,7 @@ import net.yassir.xml.BeanDefinition;
 import net.yassir.xml.Beans;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,16 +18,29 @@ import java.util.Map;
 public class XmlApplicationContext {
     private Map<String, Object> beans = new HashMap<>();
 
+    /**
+     * @param xmlPath chemin relatif sur le classpath (ex. "beans.xml")
+     */
     public XmlApplicationContext(String xmlPath) throws Exception {
-        JAXBContext jaxbContext = JAXBContext.newInstance(Beans.class);
-        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        Beans config = (Beans) unmarshaller.unmarshal(new File(xmlPath));
+        // 1. Lecture du fichier depuis le classpath
+        InputStream is = Thread.currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream(xmlPath);
+        if (is == null) {
+            throw new IllegalArgumentException("Ressource introuvable : " + xmlPath);
+        }                                                      // :contentReference[oaicite:5]{index=5}
+
+        // 2. Unmarshalling JAXB depuis l'InputStream
+        JAXBContext jaxbCtx = JAXBContext.newInstance(Beans.class);
+        Unmarshaller um = jaxbCtx.createUnmarshaller();
+        Beans config = (Beans) um.unmarshal(is);               // :contentReference[oaicite:6]{index=6} :contentReference[oaicite:7]{index=7}
+
+        // 3. Instanciation des beans sans injection (version simplifiée)
         for (BeanDefinition bd : config.getBeans()) {
             Class<?> cls = Class.forName(bd.getClassName());
             Object instance = cls.getDeclaredConstructor().newInstance();
             beans.put(bd.getId(), instance);
         }
-        // Pour cette version, l'injection (champ/setter) n'est pas gérée.
     }
 
     public Object getBean(String id) {

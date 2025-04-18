@@ -1,4 +1,4 @@
-package net.yassir;
+package net.yassir.presentation;
 
 import net.yassir.context.AnnotationApplicationContext;
 import net.yassir.metier.IMetier;
