@@ -4,13 +4,12 @@ import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 import java.util.List;
 
-/**
- * Classe de mapping pour un bean défini dans le fichier XML.
- */
 public class BeanDefinition {
     private String id;
     private String className;
     private List<ConstructorArg> constructorArg;
+    private List<Property> properties;
+    private String initMethod;
 
     @XmlAttribute
     public String getId() {
@@ -34,5 +33,21 @@ public class BeanDefinition {
     }
     public void setConstructorArg(List<ConstructorArg> constructorArg) {
         this.constructorArg = constructorArg;
+    }
+
+    @XmlElement(name = "property")
+    public List<Property> getProperties() {
+        return properties;
+    }
+    public void setProperties(List<Property> properties) {
+        this.properties = properties;
+    }
+
+    @XmlAttribute(name = "init-method")
+    public String getInitMethod() {
+        return initMethod;
+    }
+    public void setInitMethod(String initMethod) {
+        this.initMethod = initMethod;
     }
 }

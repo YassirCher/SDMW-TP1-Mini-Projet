@@ -13,7 +13,7 @@ public class MetierImpl2 implements IMetier {
      * un objet d'une classe qui implémente l'interface IDO
      * au moment de l'instantiation
      */
-    public MetierImpl2(@Qualifier("d2") IDao dao) {
+    public MetierImpl2(@Qualifier("dao") IDao dao) {
         this.dao = dao;
     }
 

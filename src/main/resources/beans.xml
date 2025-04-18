@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-    <bean id="d" class="net.yassir.dao.DaoImpl"/>
-    <bean id="metier" class="net.yassir.metier.MetierImpl2">
-        <constructor-arg ref="d"/>
+<beans>
+    <bean id="dao" class="net.yassir.dao.DaoImpl"/>
+    <bean id="metierImpl3" class="net.yassir.metier.MetierImpl3" init-method="init">
+        <property name="dao" ref="dao"/>
     </bean>
 </beans>

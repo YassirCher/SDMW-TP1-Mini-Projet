@@ -18,8 +18,8 @@ public class MetierImpl implements IMetier {
     @Inject
     private IDao dao;
     private double initialValue;
-
-    public MetierImpl(@Qualifier("d2") IDao dao) {
+    @Inject
+    public MetierImpl(@Qualifier("dao") IDao dao) {
         this.dao = dao;
     }
 
@@ -37,7 +37,7 @@ public class MetierImpl implements IMetier {
     }
 
     // Méthode setter alternative pour l'injection
-
+    @Inject
     public void setDao(IDao dao) {
         this.dao = dao;
     }
