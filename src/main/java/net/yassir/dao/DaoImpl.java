@@ -6,7 +6,7 @@ import net.yassir.dao.IDao;
 /**
  * Implémentation simple de l'interface IDao.
  */
-@Component
+@Component(id="net.yassir.dao.IDao")
 public class DaoImpl implements IDao {
     @Override
     public double getData() {

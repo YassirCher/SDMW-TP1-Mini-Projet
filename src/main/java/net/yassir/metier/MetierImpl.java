@@ -17,8 +17,6 @@ public class MetierImpl implements IMetier {
 
     private double initialValue;
 
-
-
     @PostConstruct
     public void init() {
         // Initialisation après injection – ici, on ajoute 10 à la valeur obtenue
@@ -31,7 +29,7 @@ public class MetierImpl implements IMetier {
     }
 
     // Méthode setter alternative pour l'injection
-    @Inject
+
     public void setDao(IDao dao) {
         this.dao = dao;
     }

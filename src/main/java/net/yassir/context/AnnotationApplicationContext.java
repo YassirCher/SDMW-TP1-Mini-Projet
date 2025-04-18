@@ -34,28 +34,29 @@ public class AnnotationApplicationContext {
         for (Object bean : beans.values()) {
             for (Field field : bean.getClass().getDeclaredFields()) {
                 if (field.isAnnotationPresent(Inject.class)) {
-                    String refId = field.getAnnotation(Inject.class).id();
-                    refId = refId.isEmpty() ? field.getType().getSimpleName() : refId;
-                    Object dependency = beans.get(refId);
+                    // Créer une copie finale pour la lambda
+                    final String refIdFinal = field.getAnnotation(Inject.class).id().isEmpty()
+                            ? field.getType().getName()  // Nom complet de l'interface (ex: "net.yassir.dao.IDao")
+                            : field.getAnnotation(Inject.class).id();
+
+                    Object dependency = beans.values().stream()
+                            .filter(obj -> {
+                                Component comp = obj.getClass().getAnnotation(Component.class);
+                                String beanId = comp.id().isEmpty()
+                                        ? obj.getClass().getSimpleName()
+                                        : comp.id();
+                                return beanId.equals(refIdFinal)
+                                        || obj.getClass().getName().equals(refIdFinal);
+                            })
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("Dépendance manquante: " + refIdFinal));
+
                     field.setAccessible(true);
                     field.set(bean, dependency);
                 }
             }
-            for (Method method : bean.getClass().getDeclaredMethods()) {
-                if (method.isAnnotationPresent(Inject.class)
-                        && method.getName().startsWith("set")
-                        && method.getParameterCount() == 1) {
-                    String refId = method.getAnnotation(Inject.class).id();
-                    refId = refId.isEmpty()
-                            ? method.getParameterTypes()[0].getSimpleName()
-                            : refId;
-                    Object dependency = beans.get(refId);
-                    method.setAccessible(true);
-                    method.invoke(bean, dependency);
-                }
-            }
-        }
 
+        }
         // —– 4) APPEL DES MÉTHODES @PostConstruct —–
         for (Object bean : beans.values()) {
             for (Method method : bean.getClass().getDeclaredMethods()) {
