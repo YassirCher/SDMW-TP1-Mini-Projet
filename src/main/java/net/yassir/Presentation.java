@@ -6,7 +6,7 @@ import net.yassir.metier.IMetier;
 public class Presentation {
     public static void main(String[] args) {
         try {
-            // Création du contexte d'injection en scannant le package "com.example"
+            // Création du contexte d'injection en scannant le package "net.yassir"
             AnnotationApplicationContext context = new AnnotationApplicationContext("net.yassir");
 
             // Récupération du bean métier dont l'id est "metierImpl" (défini dans l'annotation @Component)
