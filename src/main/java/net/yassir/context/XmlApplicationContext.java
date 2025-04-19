@@ -9,6 +9,7 @@ import net.yassir.xml.Property;
 
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -92,8 +93,14 @@ public class XmlApplicationContext {
                     dependency = createBean(depDef);
                     beans.put(ref, dependency);
                 }
-                Method setter = cls.getMethod("set" + capitalize(name), dependency.getClass().getInterfaces()[0]);
-                setter.invoke(instance, dependency);
+                try {
+                    Method setter = cls.getMethod("set" + capitalize(name), dependency.getClass().getInterfaces()[0]);
+                    setter.invoke(instance, dependency);
+                } catch (NoSuchMethodException e) {
+                    Field field = cls.getDeclaredField(name);
+                    field.setAccessible(true);
+                    field.set(instance, dependency);
+                }
             }
         }
 

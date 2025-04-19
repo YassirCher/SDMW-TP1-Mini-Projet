@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service("metier")
 public class MetierImpl2 implements IMetier {
     private IDao dao; // Couplage faible
-
+    private double initialValue;
     /**
      * Pour injecter dans l'attribut dao
      * un objet d'une classe qui implémente l'interface IDO
@@ -18,11 +18,14 @@ public class MetierImpl2 implements IMetier {
     }
 
 
+    public void init() {
+        // Initialisation de votre bean, avant le calcul
+        this.initialValue = dao.getData() + 10;
+    }
+
     @Override
     public double calcul() {
-        double t = dao.getData()+10;
-        double res = t *2 ;
-        return res;
+        return initialValue * 2;
     }
 
     /**

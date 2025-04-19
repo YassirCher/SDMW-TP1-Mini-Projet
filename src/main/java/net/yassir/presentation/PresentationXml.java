@@ -3,9 +3,8 @@ package net.yassir.presentation;
 import net.yassir.context.XmlApplicationContext;
 import net.yassir.dao.IDao;
 import net.yassir.metier.IMetier;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+// utilisation du setter
 public class PresentationXml {
     public static void main(String[] args) throws Exception {
         // Charge la config XML via JAXB OXM
