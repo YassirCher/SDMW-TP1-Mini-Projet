@@ -6,8 +6,10 @@ import net.yassir.annotation.PostConstruct;
 import net.yassir.utils.ClassScanner;
 import org.reflections.Reflections;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -23,12 +25,38 @@ public class AnnotationApplicationContext {
         Set<Class<?>> classes = reflections.getTypesAnnotatedWith(Component.class);
 
         // —– 2) INSTANCIATION DES BEANS —–
+        // --- Instanciation des beans ---
         for (Class<?> cls : classes) {
             Component comp = cls.getAnnotation(Component.class);
             String beanId = comp.id().isEmpty() ? cls.getSimpleName() : comp.id();
-            Object instance = cls.getDeclaredConstructor().newInstance();
+
+            Object instance;
+            // 1) Constructor‑injection si un constructeur est annoté
+            Constructor<?> injectCtor = Arrays.stream(cls.getDeclaredConstructors())
+                    .filter(c -> c.isAnnotationPresent(Inject.class))
+                    .findFirst()
+                    .orElse(null);
+
+            if (injectCtor != null) {
+                // Préparation des arguments
+                Class<?>[] paramTypes = injectCtor.getParameterTypes();
+                Object[] args = new Object[paramTypes.length];
+                for (int i = 0; i < paramTypes.length; i++) {
+                    // On utilise le bean déjà instancié ou on lance une exception
+                    args[i] = beans.get(paramTypes[i].getName());
+                    if (args[i] == null) {
+                        throw new RuntimeException("Dépendance non trouvée pour " + paramTypes[i]);
+                    }
+                }
+                injectCtor.setAccessible(true);
+                instance = injectCtor.newInstance(args);
+            } else {
+                instance = cls.getDeclaredConstructor().newInstance();
+            }
+
             beans.put(beanId, instance);
         }
+
 
         // —– 3) INJECTION CHAMPS & SETTERS —–
         for (Object bean : beans.values()) {
@@ -57,6 +85,25 @@ public class AnnotationApplicationContext {
             }
 
         }
+        // 4) Setter‑injection
+        for (Object bean : beans.values()) {
+            for (Method method : bean.getClass().getDeclaredMethods()) {
+                if (method.isAnnotationPresent(Inject.class)
+                        && method.getParameterCount() == 1) {
+
+                    Class<?> paramType = method.getParameterTypes()[0];
+                    Object dep = beans.values().stream()
+                            .filter(b -> paramType.isInstance(b))
+                            .findFirst()
+                            .orElseThrow(() ->
+                                    new RuntimeException("Dépendance manquante pour setter " + method.getName()));
+
+                    method.setAccessible(true);
+                    method.invoke(bean, dep);
+                }
+            }
+        }
+
         // —– 4) APPEL DES MÉTHODES @PostConstruct —–
         for (Object bean : beans.values()) {
             for (Method method : bean.getClass().getDeclaredMethods()) {

@@ -11,14 +11,14 @@ import org.springframework.stereotype.Service;
  * Implémentation de la logique métier.
  */
 @Component(id = "metierImpl")
-@Service("metier")
+
 public class MetierImpl implements IMetier {
 
     // Injection par champ
     @Inject
     private IDao dao;
     private double initialValue;
-    @Inject
+
     public MetierImpl(@Qualifier("dao") IDao dao) {
         this.dao = dao;
     }
